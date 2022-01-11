@@ -1,13 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import profilepic from "../assets/profile.png";
 import elipsisicon from "../assets/elipsis.png";
 import addicon from "../assets/add.png";
 import sendicon from "../assets/send-arrow.png";
+import { db } from "../firebaseConfig";
 const Chat = () => {
-  const [data, setdata] = useState(["a"]);
+  const [data, setdata] = useState();
+  useEffect(() => {
+    db.collection("message")
+      .where("sender", "==", "bintang")
+      .where("receiver", "==", "bintnag")
+      .get()
+      .then(res => {
+        setdata(res);
+      });
+  }, []);
   const renderChat = () => {
     if (data) {
-      return <p>blala</p>;
+      console.log(data);
+      var chats = [];
+      data.forEach(val => {
+        var temp = <p key={val.id}>{val.data().message}</p>;
+        chats.push(temp);
+      });
+      return chats;
     } else {
       return "";
     }
@@ -15,6 +31,7 @@ const Chat = () => {
   return (
     <>
       <div className="flex w-full items-center border-gray-300 border-b-[1px] pb-2">
+        {/* {renderChat()} */}
         <button className="mr-3">
           <img src={profilepic} alt="" />
         </button>
