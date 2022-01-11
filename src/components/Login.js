@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import passicon from "../assets/password.png";
 import emailicon from "../assets/email.png";
 import googleicon from "../assets/google.png";

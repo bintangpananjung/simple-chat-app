@@ -1,10 +1,44 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import searchicon from "../assets/search.png";
 import profileicon from "../assets/profile.png";
 import elipsisicon from "../assets/elipsis.png";
 import addchaticon from "../assets/addchat.png";
+import { db } from "../firebaseConfig";
 
-const Chats = () => {
+const Chats = ({ userdata }) => {
+  const [senderChats, setsenderChats] = useState();
+  const [receiverChats, setreceiverChats] = useState();
+  useEffect(() => {
+    if (userdata) {
+      db.collection("message")
+        .where("sender", "==", userdata.uid)
+        .orderBy("timestamp", "desc")
+        .get()
+        .then(res => {
+          if (res) {
+            setsenderChats(res);
+          }
+        })
+        .catch(err => {
+          console.log(err.code, err.message);
+        });
+    }
+  }, []);
+  useEffect(() => {
+    db.collection("message")
+      .where("receiver", "==", userdata.uid)
+      .orderBy("timestamp", "desc")
+      .get()
+      .then(res => {
+        if (res) {
+          setreceiverChats(res);
+        }
+      })
+      .catch(err => {
+        console.log(err.code, err.message);
+      });
+  }, []);
+  const renderChats = () => {};
   return (
     <>
       <div className="flex bg-[#e8e7fc] rounded-md items-center w-[15rem]">

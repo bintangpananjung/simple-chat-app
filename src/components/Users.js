@@ -3,54 +3,78 @@ import { db } from "../firebaseConfig";
 import searchicon from "../assets/search.png";
 import profileicon from "../assets/profile.png";
 import elipsisicon from "../assets/elipsis.png";
-const Users = () => {
+const Users = ({ userdata }) => {
   const [data, setdata] = useState();
+  // console.log(data);
+  //get user data
   useEffect(() => {
-    db.collection("users")
-      .get()
-      .then(res => {
-        setdata(res);
-      });
-  }, []);
+    if (userdata) {
+      db.collection("users")
+        .where("uid", "in", userdata.friends)
+        .get()
+        .then(res => {
+          setdata(res);
+        })
+        .catch(err => {
+          console.log(err.code, err.message);
+        });
+    }
+  }, [userdata]);
   const renderUser = () => {
     if (data) {
       var userslist = [];
+      userslist.push(
+        <div key={userdata.uid}>
+          <p className="text-xs text-slate-500 ml-4 my-2">You</p>
+          <div className="flex items-center border-y-[1px] px-4 py-1 cursor-default hover:bg-[#e8e7fc]">
+            <img src={profileicon} alt="" className="h-[36px]" />
+            <p className="ml-4 text-sm mr-auto">{userdata.username}</p>
+            <p className="text-xs text-slate-500 ml-4 my-2 mr-3">
+              {userdata.status}
+            </p>
+            <button>
+              <img src={elipsisicon} alt="" />
+            </button>
+          </div>
+          <p className="text-xs text-slate-500 ml-4 my-2">Friends</p>
+        </div>
+      );
       data.forEach(val => {
         var x;
-        if (val.data().username === "bintang") {
-          userslist.unshift(
-            <div key={val.id}>
-              <p className="text-xs text-slate-500 ml-4 my-2">You</p>
-              <div className="flex items-center border-y-[1px] px-4 py-1 cursor-default hover:bg-[#e8e7fc]">
-                <img src={profileicon} alt="" className="h-[36px]" />
-                <p className="ml-4 text-sm mr-auto">{val.data().username}</p>
-                <p className="text-xs text-slate-500 ml-4 my-2 mr-3">
-                  {val.data().status}
-                </p>
-                <button>
-                  <img src={elipsisicon} alt="" />
-                </button>
-              </div>
-              <p className="text-xs text-slate-500 ml-4 my-2">Friends</p>
-            </div>
-          );
-        } else {
-          x = (
-            <div
-              key={val.id}
-              className="flex items-center border-y-[1px] px-4 py-1 cursor-pointer hover:bg-[#e8e7fc]"
-            >
-              <img src={profileicon} alt="" className="h-[36px]" />
-              <p className="ml-4 text-sm mr-auto">{val.data().username}</p>
-              <p className="text-xs text-slate-500 ml-4 my-2 mr-3">
-                {val.data().status}
-              </p>
-              <button>
-                <img src={elipsisicon} alt="" />
-              </button>
-            </div>
-          );
-        }
+        // if (val.data().uid === "bintang") {
+        //   userslist.unshift(
+        // <div key={val.id}>
+        //   <p className="text-xs text-slate-500 ml-4 my-2">You</p>
+        //   <div className="flex items-center border-y-[1px] px-4 py-1 cursor-default hover:bg-[#e8e7fc]">
+        //     <img src={profileicon} alt="" className="h-[36px]" />
+        //     <p className="ml-4 text-sm mr-auto">{val.data().username}</p>
+        //     <p className="text-xs text-slate-500 ml-4 my-2 mr-3">
+        //       {val.data().status}
+        //     </p>
+        //     <button>
+        //       <img src={elipsisicon} alt="" />
+        //     </button>
+        //   </div>
+        //   <p className="text-xs text-slate-500 ml-4 my-2">Friends</p>
+        // </div>
+        //   );
+        // } else {
+        x = (
+          <div
+            key={val.id}
+            className="flex items-center border-y-[1px] px-4 py-1 cursor-pointer hover:bg-[#e8e7fc]"
+          >
+            <img src={profileicon} alt="" className="h-[36px]" />
+            <p className="ml-4 text-sm mr-auto">{val.data().username}</p>
+            <p className="text-xs text-slate-500 ml-4 my-2 mr-3">
+              {val.data().status}
+            </p>
+            <button>
+              <img src={elipsisicon} alt="" />
+            </button>
+          </div>
+        );
+        // }
 
         userslist.push(x);
       });
@@ -70,6 +94,11 @@ const Users = () => {
       </div>
       <div className="overflow-y-auto scrollbar-style w-full mt-4">
         {renderUser()}
+        {/* {data
+          ? data.forEach(val => {
+              console.log(val.data());
+            })
+          : ""} */}
       </div>
     </>
   );

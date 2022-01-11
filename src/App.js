@@ -11,7 +11,7 @@ import Chat from "./components/Chat";
 import User from "./components/User";
 import Authentication from "./pages/Authentication";
 import { useState, useEffect } from "react";
-import { auth } from "./firebaseConfig";
+import { db, auth } from "./firebaseConfig";
 import Adduser from "./components/Adduser";
 import Logout from "./components/Logout";
 
@@ -19,19 +19,34 @@ function App() {
   const location = useLocation();
   const [mounted, setmounted] = useState(false);
   const [user, setuser] = useState();
+  const [userdata, setuserdata] = useState();
   const [token, settoken] = useState();
+  useEffect(() => {
+    if (user) {
+      db.collection("users")
+        .where("uid", "==", user)
+        .get()
+        .then(res => {
+          var temp;
+          res.forEach(val => {
+            temp = val.data();
+          });
+          setuserdata(temp);
+        });
+    }
+  }, [user]);
   useEffect(() => {
     if (localStorage.getItem("token")) {
       settoken(localStorage.getItem("token"));
     }
   }, []);
 
-  console.log(token);
+  // console.log(user);
   useEffect(() => {
     auth
       .getRedirectResult()
       .then(res => {
-        console.log(res);
+        // console.log(res);
         if (res.credential) {
           settoken(res.credential.accessToken);
           localStorage.setItem("token", res.credential.accessToken);
@@ -53,20 +68,20 @@ function App() {
       }
     });
   }, []);
-  useEffect(() => {
-    const userdata = auth.currentUser;
+  // useEffect(() => {
+  //   const userdata = auth.currentUser;
 
-    if (userdata !== null) {
-      userdata.providerData.forEach(profile => {
-        console.log("Sign-in provider: " + profile.providerId);
-        console.log("  Provider-specific UID: " + profile.uid);
-        console.log("  Name: " + profile.displayName);
-        console.log("  Email: " + profile.email);
-        console.log("  Photo URL: " + profile.photoURL);
-        console.log(profile);
-      });
-    }
-  }, [user]);
+  //   if (userdata !== null) {
+  //     userdata.providerData.forEach(profile => {
+  //       console.log("Sign-in provider: " + profile.providerId);
+  //       console.log("  Provider-specific UID: " + profile.uid);
+  //       console.log("  Name: " + profile.displayName);
+  //       console.log("  Email: " + profile.email);
+  //       console.log("  Photo URL: " + profile.photoURL);
+  //       console.log(profile);
+  //     });
+  //   }
+  // }, [user]);
   if (!location.pathname.match(/^\/auth+\/(login|register)$/i) && !user) {
     return <Navigate to={"/auth/login"} />;
   }
@@ -138,8 +153,14 @@ function App() {
           <div className="flex w-full h-full bg-[#e8e7fc] rounded-2xl p-3">
             <div className="flex flex-col h-full w-[18rem] min-w-[18rem] bg-slate-50 rounded-2xl shadow-xl mr-3 items-center pt-3 overflow-y-auto relative">
               <Routes>
-                <Route path={"/users"} element={<Users />} />
-                <Route path={"/chats"} element={<Chats />} />
+                <Route
+                  path={"/users"}
+                  element={<Users userdata={userdata} />}
+                />
+                <Route
+                  path={"/chats"}
+                  element={<Chats userdata={userdata} />}
+                />
                 <Route path={"/logout"} element={<Logout func={setuser} />} />
                 <Route path={"/adduser"} element={<Adduser />} />
               </Routes>
