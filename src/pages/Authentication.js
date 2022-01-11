@@ -1,5 +1,5 @@
 import React from "react";
-import { auth } from "../firebaseConfig";
+// import { auth } from "../firebaseConfig";
 import loginicon from "../assets/login-100px.png";
 
 import { Route, Routes, useLocation } from "react-router-dom";

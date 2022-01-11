@@ -56,6 +56,7 @@ const Users = () => {
       });
       return userslist;
     }
+    return <p className="text-sm text-center">loading...</p>;
   };
   return (
     <>
@@ -69,26 +70,6 @@ const Users = () => {
       </div>
       <div className="overflow-y-auto scrollbar-style w-full mt-4">
         {renderUser()}
-        {/* <p className="text-xs text-slate-500 ml-4 my-2">You</p>
-        <div className="flex items-center border-y-[1px] px-4 py-1 cursor-default hover:bg-[#e8e7fc]">
-          <img src={profileicon} alt="" className="h-[36px]" />
-          <p className="ml-4 text-sm mr-auto">Bintang</p>
-          <p className="text-xs text-slate-500 ml-4 my-2 mr-3">
-            Yo, Wassup bro
-          </p>
-          <button>
-            <img src={elipsisicon} alt="" />
-          </button>
-        </div>
-        <p className="text-xs text-slate-500 ml-4 my-2">Friends</p>
-        <div className="flex items-center border-y-[1px] px-4 py-1 cursor-pointer hover:bg-[#e8e7fc]">
-          <img src={profileicon} alt="" className="h-[36px]" />
-          <p className="ml-4 text-sm mr-auto">Bambang</p>
-          <p className="text-xs text-slate-500 ml-4 my-2 mr-3">yoyoo</p>
-          <button>
-            <img src={elipsisicon} alt="" />
-          </button>
-        </div> */}
       </div>
     </>
   );

@@ -2,37 +2,62 @@ import "./App.css";
 // import { db } from "./firebaseConfig";
 import Users from "./components/Users";
 import Chats from "./components/Chats";
-import {
-  Link,
-  Navigate,
-  Route,
-  Routes,
-  useLocation,
-  useNavigate,
-} from "react-router-dom";
+import { Link, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import chaticon from "./assets/chat.png";
 import usericon from "./assets/user.png";
 import addusericon from "./assets/adduser.png";
-import settingicon from "./assets/setting.png";
+import logouticon from "./assets/logout.png";
 import Chat from "./components/Chat";
 import User from "./components/User";
 import Authentication from "./pages/Authentication";
-import react, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { auth } from "./firebaseConfig";
+import Adduser from "./components/Adduser";
+import Logout from "./components/Logout";
 
 function App() {
   const location = useLocation();
+  const [mounted, setmounted] = useState(false);
   const [user, setuser] = useState();
-  // console.log(user);
-
-  // useEffect(() => {
-  //   auth.signOut().then(setuser());
-  // }, []);
+  const [token, settoken] = useState();
   useEffect(() => {
-    const user = auth.currentUser;
+    if (localStorage.getItem("token")) {
+      settoken(localStorage.getItem("token"));
+    }
+  }, []);
 
-    if (user !== null) {
-      user.providerData.forEach(profile => {
+  console.log(token);
+  useEffect(() => {
+    auth
+      .getRedirectResult()
+      .then(res => {
+        console.log(res);
+        if (res.credential) {
+          settoken(res.credential.accessToken);
+          localStorage.setItem("token", res.credential.accessToken);
+        }
+      })
+      .catch(err => {
+        console.log(err.code, err.message, err.email, err.credential);
+      });
+  }, []);
+
+  useEffect(() => {
+    auth.onAuthStateChanged(signed => {
+      if (signed) {
+        setuser(signed.uid);
+        setmounted(true);
+      } else {
+        setuser();
+        setmounted(true);
+      }
+    });
+  }, []);
+  useEffect(() => {
+    const userdata = auth.currentUser;
+
+    if (userdata !== null) {
+      userdata.providerData.forEach(profile => {
         console.log("Sign-in provider: " + profile.providerId);
         console.log("  Provider-specific UID: " + profile.uid);
         console.log("  Name: " + profile.displayName);
@@ -41,20 +66,15 @@ function App() {
         console.log(profile);
       });
     }
-  }, []);
-
-  useEffect(() => {
-    auth.onAuthStateChanged(signed => {
-      if (signed) {
-        setuser(signed.uid);
-      }
-    });
-  }, []);
+  }, [user]);
   if (!location.pathname.match(/^\/auth+\/(login|register)$/i) && !user) {
     return <Navigate to={"/auth/login"} />;
   }
   if (location.pathname.match(/^\/auth+\/(login|register)$/i) && user) {
-    return <Navigate to={"/"} />;
+    return <Navigate to={"/users"} />;
+  }
+  if (!mounted) {
+    return <></>;
   }
   if (!user) {
     return (
@@ -104,15 +124,15 @@ function App() {
               <img src={addusericon} alt="" />
             </Link>
             <Link
-              to={"/settings"}
+              to={"/logout"}
               className={
-                "py-2 w-full flex justify-center transition-all duration-75 hover:border-l-slate-50 hover:border-l-4" +
-                (location.pathname === "/settings"
+                "py-2 w-full flex justify-center transition-all duration-75 hover:border-l-slate-50 hover:border-l-4 pl-1" +
+                (location.pathname === "/logout"
                   ? "border-l-slate-50 border-l-4 "
                   : "")
               }
             >
-              <img src={settingicon} alt="" />
+              <img src={logouticon} alt="" />
             </Link>
           </div>
           <div className="flex w-full h-full bg-[#e8e7fc] rounded-2xl p-3">
@@ -120,6 +140,8 @@ function App() {
               <Routes>
                 <Route path={"/users"} element={<Users />} />
                 <Route path={"/chats"} element={<Chats />} />
+                <Route path={"/logout"} element={<Logout func={setuser} />} />
+                <Route path={"/adduser"} element={<Adduser />} />
               </Routes>
             </div>
             <div className="flex flex-col h-full w-full p-3 pb-0 min-w-[307px]">

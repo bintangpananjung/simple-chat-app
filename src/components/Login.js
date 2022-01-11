@@ -1,15 +1,35 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import passicon from "../assets/password.png";
 import emailicon from "../assets/email.png";
 import googleicon from "../assets/google.png";
 import { Link } from "react-router-dom";
+import { auth } from "../firebaseConfig";
+import firebase from "firebase/app";
 const Login = () => {
+  const [email, setemail] = useState();
+  const [password, setpassword] = useState();
+
+  const submit = () => {
+    auth
+      .signInWithEmailAndPassword(email, password)
+      .then(cred => {
+        console.log(cred);
+      })
+      .catch(err => {
+        console.log(err.code, err.message);
+      });
+  };
+  const googlesignin = () => {
+    var provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithRedirect(provider);
+  };
   return (
     <>
       <form
         className="p-0 w-full h-fit flex flex-col items-center mt-auto"
         onSubmit={e => {
           e.preventDefault();
+          submit();
         }}
       >
         <div className="flex bg-[#e8e7fc] rounded-md items-center h-10 w-3/4 mb-4 px-3">
@@ -19,6 +39,9 @@ const Login = () => {
             className="bg-transparent placeholder:text-sm placeholder:italic outline-none h-8 w-full text-sm"
             placeholder="Email address"
             autoComplete="off"
+            onChange={e => {
+              setemail(e.target.value);
+            }}
           />
         </div>
         <div className="flex bg-[#e8e7fc] rounded-md items-center h-10 w-3/4 mb-8 px-3">
@@ -27,6 +50,9 @@ const Login = () => {
             type="password"
             className="bg-transparent placeholder:text-sm placeholder:italic outline-none h-8 w-full text-sm"
             placeholder="Password"
+            onChange={e => {
+              setpassword(e.target.value);
+            }}
           />
         </div>
         <button
@@ -38,7 +64,13 @@ const Login = () => {
       </form>
       <p className="mt-5 text-gray-400">or</p>
       <div className="flex flex-col w-3/4 mt-5 mb-6">
-        <button className="flex items-center w-full p-2 bg-slate-50 shadow-md rounded-lg">
+        <button
+          className="flex items-center w-full p-2 bg-slate-50 shadow-md rounded-lg"
+          onClick={e => {
+            e.preventDefault();
+            googlesignin();
+          }}
+        >
           <img src={googleicon} alt="" className="mr-2" />
           <p className="text-sm text-[#48466D] w-full text-center font-semibold">
             Sign in with Google
