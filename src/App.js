@@ -21,6 +21,97 @@ function App() {
   const [user, setuser] = useState();
   const [userdata, setuserdata] = useState();
   const [token, settoken] = useState();
+  const [friends, setfriends] = useState();
+  const [chats, setchats] = useState([]);
+  const [friendusername, setfriendusername] = useState([]);
+  //get friends of user
+  useEffect(() => {
+    if (userdata) {
+      db.collection("users")
+        .where("uid", "in", userdata.friends)
+        .get()
+        .then(res => {
+          // console.log(res);
+          setfriends(res);
+          var tempArr = [];
+          res.forEach(val => {
+            tempArr.push(val.data());
+          });
+          setfriendusername(tempArr);
+        })
+        .catch(err => {
+          console.log(err.code, err.message);
+        });
+    }
+  }, [userdata]);
+
+  async function gettempChats() {
+    if (userdata) {
+      const sender = db
+        .collection("message")
+        .where("sender", "==", userdata.uid)
+        .get();
+      const receiver = db
+        .collection("message")
+        .where("receiver", "==", userdata.uid)
+        .get();
+      const [senderSnapshot, receiverSnapshot] = await Promise.all([
+        sender,
+        receiver,
+      ]);
+      const senderArr = senderSnapshot.docs;
+      const receiverArr = receiverSnapshot.docs;
+      return senderArr.concat(receiverArr);
+    }
+  }
+  const tempChats = gettempChats();
+  useEffect(() => {
+    if (userdata) {
+      gettempChats().then(res => {
+        // console.log(res);
+        var tempArr = chats;
+        res.forEach(val => {
+          if (
+            !tempArr.some(
+              obj =>
+                obj.uid === val.data().sender || obj.uid === val.data().receiver
+            )
+          ) {
+            tempArr.push({
+              uid:
+                val.data().receiver === userdata.uid
+                  ? val.data().sender
+                  : val.data().receiver,
+              messages: [
+                {
+                  message: val.data().message,
+                  send: val.data().receiver === userdata.uid ? 1 : 0,
+                  timestamp: val.data().timestamp.seconds,
+                },
+              ],
+            });
+          } else {
+            // console.log(tempArr);
+            const idxUser = tempArr.findIndex(
+              obj =>
+                obj.uid === val.data().receiver || obj.uid === val.data().sender
+            );
+            tempArr[idxUser].messages.push({
+              message: val.data().message,
+              send: val.data().receiver === userdata.uid ? 1 : 0,
+              timestamp: val.data().timestamp.seconds,
+            });
+            tempArr[idxUser].messages.sort((a, b) => {
+              return b.timestamp - a.timestamp;
+            });
+          }
+        });
+        setchats(tempArr);
+      });
+    }
+  }, [tempChats]);
+
+  //get user uid
   useEffect(() => {
     if (user) {
       db.collection("users")
@@ -155,11 +246,11 @@ function App() {
               <Routes>
                 <Route
                   path={"/users"}
-                  element={<Users userdata={userdata} />}
+                  element={<Users friends={friends} userdata={userdata} />}
                 />
                 <Route
                   path={"/chats"}
-                  element={<Chats userdata={userdata} />}
+                  element={<Chats chats={chats} usernames={friendusername} />}
                 />
                 <Route path={"/logout"} element={<Logout func={setuser} />} />
                 <Route path={"/adduser"} element={<Adduser />} />
