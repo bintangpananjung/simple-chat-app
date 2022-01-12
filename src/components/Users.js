@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { db } from "../firebaseConfig";
+import React from "react";
+// import { db } from "../firebaseConfig";
 import searchicon from "../assets/search.png";
 import profileicon from "../assets/profile.png";
 import elipsisicon from "../assets/elipsis.png";

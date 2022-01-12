@@ -1,16 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import searchicon from "../assets/search.png";
 import profileicon from "../assets/profile.png";
 import elipsisicon from "../assets/elipsis.png";
 import addchaticon from "../assets/addchat.png";
-import { db } from "../firebaseConfig";
+// import { db } from "../firebaseConfig";
 
-const Chats = ({ chats, usernames }) => {
+const Chats = ({ chats, usernames, usertochat }) => {
   const renderChats = () => {
     if (chats.length > 0 && usernames) {
       return chats.map((val, index) => {
         return (
           <div
+            onClick={e => {
+              e.preventDefault();
+              usertochat(val);
+            }}
             key={val.uid}
             className="flex items-center border-y-[1px] px-4 py-1 cursor-pointer hover:bg-[#e8e7fc]"
           >

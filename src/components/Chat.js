@@ -3,18 +3,15 @@ import profilepic from "../assets/profile.png";
 import elipsisicon from "../assets/elipsis.png";
 import addicon from "../assets/add.png";
 import sendicon from "../assets/send-arrow.png";
-import { db } from "../firebaseConfig";
-const Chat = () => {
+// import { db } from "../firebaseConfig";
+const Chat = ({ usertochat }) => {
   const [data, setdata] = useState();
+  // console.log(data);
   useEffect(() => {
-    db.collection("message")
-      .where("sender", "==", "bintang")
-      .where("receiver", "==", "bintnag")
-      .get()
-      .then(res => {
-        setdata(res);
-      });
-  }, []);
+    if (usertochat) {
+      setdata(usertochat.messages);
+    }
+  }, [usertochat]);
   const renderChat = () => {
     if (data) {
       console.log(data);
@@ -40,7 +37,7 @@ const Chat = () => {
           <img src={elipsisicon} alt="" />
         </button>
       </div>
-      <div className="flex flex-col overflow-y-auto scrollbar-style w-full pt-3 my-auto">
+      <div className="flex flex-col overflow-y-auto scrollbar-style w-full pt-3 mb-auto">
         <div className="flex pb-2 items-start mb-4">
           <img src={profilepic} alt="" className="mr-2" />
           <div className="bg-slate-50 max-w-[calc(100%_-_90px)] rounded-xl rounded-tl-none shadow-[5px_5px_5px_rgba(0,0,0,0.10)] py-1 px-3 text-sm">
@@ -54,24 +51,6 @@ const Chat = () => {
           <img src={profilepic} alt="" className="ml-2" />
           <div className="bg-[#ABEDD8] max-w-[calc(100%_-_90px)] rounded-xl rounded-tr-none shadow-[-5px_5px_5px_rgba(0,0,0,0.10)] py-1 px-3 text-sm">
             asflaskfja
-          </div>
-        </div>
-        <div className="flex pb-2 items-start mb-4">
-          <img src={profilepic} alt="" className="mr-2" />
-          <div className="bg-slate-50 max-w-[calc(100%_-_90px)] rounded-xl rounded-tl-none shadow-[5px_5px_5px_rgba(0,0,0,0.10)] py-1 px-3 text-sm">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Adipisci
-            consequuntur, reprehenderit quisquam commodi nobis vitae quo sit
-            facere! Unde perspiciatis at exercitationem provident sunt cumque
-            doloremque, corporis similique culpa eaque.
-          </div>
-        </div>
-        <div className="flex pb-2 items-start mb-4">
-          <img src={profilepic} alt="" className="mr-2" />
-          <div className="bg-slate-50 max-w-[calc(100%_-_90px)] rounded-xl rounded-tl-none shadow-[5px_5px_5px_rgba(0,0,0,0.10)] py-1 px-3 text-sm">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Adipisci
-            consequuntur, reprehenderit quisquam commodi nobis vitae quo sit
-            facere! Unde perspiciatis at exercitationem provident sunt cumque
-            doloremque, corporis similique culpa eaque.
           </div>
         </div>
       </div>

@@ -23,7 +23,10 @@ function App() {
   const [token, settoken] = useState();
   const [friends, setfriends] = useState();
   const [chats, setchats] = useState([]);
+  const [usertochat, setusertochat] = useState();
   const [friendusername, setfriendusername] = useState([]);
+  const tempChats = gettempChats();
+
   //get friends of user
   useEffect(() => {
     if (userdata) {
@@ -45,6 +48,7 @@ function App() {
     }
   }, [userdata]);
 
+  useEffect(() => {}, []);
   async function gettempChats() {
     if (userdata) {
       const sender = db
@@ -64,7 +68,7 @@ function App() {
       return senderArr.concat(receiverArr);
     }
   }
-  const tempChats = gettempChats();
+
   useEffect(() => {
     if (userdata) {
       gettempChats().then(res => {
@@ -109,7 +113,7 @@ function App() {
         setchats(tempArr);
       });
     }
-  }, [tempChats]);
+  }, [userdata]);
 
   //get user uid
   useEffect(() => {
@@ -250,14 +254,20 @@ function App() {
                 />
                 <Route
                   path={"/chats"}
-                  element={<Chats chats={chats} usernames={friendusername} />}
+                  element={
+                    <Chats
+                      chats={chats}
+                      usernames={friendusername}
+                      usertochat={setusertochat}
+                    />
+                  }
                 />
                 <Route path={"/logout"} element={<Logout func={setuser} />} />
                 <Route path={"/adduser"} element={<Adduser />} />
               </Routes>
             </div>
             <div className="flex flex-col h-full w-full p-3 pb-0 min-w-[307px]">
-              <Chat />
+              <Chat usertochat={usertochat} />
             </div>
           </div>
           <div className="flex flex-col w-[23rem] ml-4 bg-slate-50 rounded-2xl p-3 items-center min-w-[180px]">
