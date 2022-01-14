@@ -9,7 +9,7 @@ const Users = ({ friends, userdata }) => {
   //get user data
 
   const renderUser = () => {
-    if (friends) {
+    if (friends && userdata) {
       var userslist = [];
       userslist.push(
         <div key={userdata.uid}>
@@ -21,7 +21,7 @@ const Users = ({ friends, userdata }) => {
               {userdata.status}
             </p>
             <button>
-              <img src={elipsisicon} alt="" />
+              <img src={elipsisicon} alt="" className="min-w-[16px]" />
             </button>
           </div>
           <p className="text-xs text-slate-500 ml-4 my-2">Friends</p>
@@ -40,7 +40,7 @@ const Users = ({ friends, userdata }) => {
               {val.data().status}
             </p>
             <button>
-              <img src={elipsisicon} alt="" />
+              <img src={elipsisicon} alt="" className="min-w-[16px]" />
             </button>
           </div>
         );

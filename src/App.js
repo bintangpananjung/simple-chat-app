@@ -10,7 +10,7 @@ import logouticon from "./assets/logout.png";
 import Chat from "./components/Chat";
 import User from "./components/User";
 import Authentication from "./pages/Authentication";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { db, auth } from "./firebaseConfig";
 import Adduser from "./components/Adduser";
 import Logout from "./components/Logout";
@@ -19,36 +19,75 @@ function App() {
   const location = useLocation();
   const [mounted, setmounted] = useState(false);
   const [user, setuser] = useState();
-  const [userdata, setuserdata] = useState();
+  const [userdata, setuserdata] = useState({
+    uid: null,
+    status: null,
+    name: null,
+    username: null,
+    friends: ["false"],
+  });
   const [token, settoken] = useState();
   const [friends, setfriends] = useState();
   const [chats, setchats] = useState([]);
   const [usertochat, setusertochat] = useState();
   const [friendusername, setfriendusername] = useState([]);
-  const tempChats = gettempChats();
+  const isUserSet = useRef(false);
 
-  //get friends of user
   useEffect(() => {
-    if (userdata) {
-      db.collection("users")
-        .where("uid", "in", userdata.friends)
-        .get()
-        .then(res => {
-          // console.log(res);
-          setfriends(res);
-          var tempArr = [];
-          res.forEach(val => {
-            tempArr.push(val.data());
-          });
-          setfriendusername(tempArr);
-        })
-        .catch(err => {
-          console.log(err.code, err.message);
-        });
-    }
+    auth.onAuthStateChanged(signed => {
+      if (signed) {
+        setuser(signed.uid);
+        setmounted(true);
+      } else {
+        setuser();
+        setmounted(true);
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    auth
+      .getRedirectResult()
+      .then(res => {
+        // console.log(res);
+        if (res.credential) {
+          console.log(res.additionalUserInfo);
+          if (res.additionalUserInfo.isNewUser) {
+            console.log("new");
+            db.collection("users")
+              .add({
+                name: res.user.displayName,
+                status: "",
+                uid: res.user.uid,
+                username: res.user.displayName,
+                friends: [],
+              })
+              .then();
+          }
+          settoken(res.credential.accessToken);
+
+          localStorage.setItem("token", res.credential.accessToken);
+        }
+      })
+      .catch(err => {
+        console.log(err.code, err.message, err.email, err.credential);
+      });
+  }, []);
+  useEffect(() => {
+    const query = db.collection("users").where("uid", "in", userdata.friends);
+
+    query.onSnapshot(res => {
+      // console.log(res);
+      setfriends(res);
+      var tempArr = [];
+      res.forEach(val => {
+        tempArr.push(val.data());
+      });
+      setfriendusername(tempArr);
+    });
+    // }
   }, [userdata]);
 
-  useEffect(() => {}, []);
   async function gettempChats() {
     if (userdata) {
       const sender = db
@@ -89,7 +128,7 @@ function App() {
               messages: [
                 {
                   message: val.data().message,
-                  send: val.data().receiver === userdata.uid ? 1 : 0,
+                  send: val.data().receiver === userdata.uid ? 0 : 1,
                   timestamp: val.data().timestamp.seconds,
                 },
               ],
@@ -102,7 +141,7 @@ function App() {
             );
             tempArr[idxUser].messages.push({
               message: val.data().message,
-              send: val.data().receiver === userdata.uid ? 1 : 0,
+              send: val.data().receiver === userdata.uid ? 0 : 1,
               timestamp: val.data().timestamp.seconds,
             });
             tempArr[idxUser].messages.sort((a, b) => {
@@ -120,13 +159,13 @@ function App() {
     if (user) {
       db.collection("users")
         .where("uid", "==", user)
-        .get()
-        .then(res => {
+        .onSnapshot(res => {
           var temp;
           res.forEach(val => {
             temp = val.data();
           });
           setuserdata(temp);
+          isUserSet.current = true;
         });
     }
   }, [user]);
@@ -136,33 +175,9 @@ function App() {
     }
   }, []);
 
-  // console.log(user);
-  useEffect(() => {
-    auth
-      .getRedirectResult()
-      .then(res => {
-        // console.log(res);
-        if (res.credential) {
-          settoken(res.credential.accessToken);
-          localStorage.setItem("token", res.credential.accessToken);
-        }
-      })
-      .catch(err => {
-        console.log(err.code, err.message, err.email, err.credential);
-      });
-  }, []);
+  // console.log(userdata);
+  // console.log("a");
 
-  useEffect(() => {
-    auth.onAuthStateChanged(signed => {
-      if (signed) {
-        setuser(signed.uid);
-        setmounted(true);
-      } else {
-        setuser();
-        setmounted(true);
-      }
-    });
-  }, []);
   // useEffect(() => {
   //   const userdata = auth.currentUser;
 
@@ -267,7 +282,7 @@ function App() {
               </Routes>
             </div>
             <div className="flex flex-col h-full w-full p-3 pb-0 min-w-[307px]">
-              <Chat usertochat={usertochat} />
+              <Chat usertochat={usertochat} usernames={friendusername} />
             </div>
           </div>
           <div className="flex flex-col w-[23rem] ml-4 bg-slate-50 rounded-2xl p-3 items-center min-w-[180px]">
