@@ -241,7 +241,7 @@ const Chat = ({ usertochat, usernames, userdata }) => {
       <div
         className={
           (usertochat ? "visible " : "hidden ") +
-          "flex w-full h-11 bg-slate-50 rounded-2xl items-center px-2 min-h-[2.4rem] mt-1"
+          "flex w-full h-11 bg-slate-50 rounded-2xl items-center px-2 min-h-[44px] mt-1"
         }
       >
         <button className="mr-2">

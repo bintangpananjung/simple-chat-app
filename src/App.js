@@ -302,7 +302,7 @@ function App() {
   }
   return (
     <>
-      <div className="flex justify-center items-center h-screen min-h-fit bg-[#cee3ee]">
+      <div className="flex justify-center items-center h-screen min-h-fit bg-[#cee3ee] min-w-fit">
         <div className="flex w-10/12 h-5/6 min-w-[57rem] min-h-[31rem] bg-[#48466D] rounded-3xl overflow-hidden py-4 pr-4">
           <div className="h-full flex flex-col justify-center items-center w-24 min-w-[4rem]">
             <Link

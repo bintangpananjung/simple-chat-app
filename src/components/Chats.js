@@ -56,11 +56,12 @@ const Chats = ({ chats, usernames, usertochat }) => {
           placeholder="Search Chat"
         />
       </div>
-      <div className="flex justify-center items-center absolute bottom-0 right-0 m-4 bg-[#e8e7fc] shadow-md rounded-full p-3 hover:scale-105">
-        <button title="Create Chat">
-          <img src={addchaticon} alt="" className="h-8" />
-        </button>
-      </div>
+      <button
+        title="Create Chat"
+        className="flex justify-center items-center absolute bottom-0 right-0 m-4 bg-[#e8e7fc] shadow-md rounded-full p-3 hover:scale-105"
+      >
+        <img src={addchaticon} alt="" className="h-8" />
+      </button>
 
       <div className="overflow-y-auto scrollbar-style w-full h-full mt-5">
         {renderChats()}

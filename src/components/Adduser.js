@@ -17,7 +17,7 @@ const Adduser = ({ userdata, friendusername, setusertochat }) => {
         .where("name", "==", searchInput)
         .get()
         .then(res => {
-          if (!res.empty) {
+          if (!res.empty && res.docs[0].data().uid !== userdata.uid) {
             setuserFound(res.docs[0].data());
           } else {
             setuserFound();
@@ -28,7 +28,7 @@ const Adduser = ({ userdata, friendusername, setusertochat }) => {
         .where("email", "==", searchInput)
         .get()
         .then(res => {
-          if (!res.empty) {
+          if (!res.empty && res.docs[0].data().uid !== userdata.uid) {
             setuserFound(res.docs[0].data());
           } else {
             setuserFound();
@@ -68,6 +68,7 @@ const Adduser = ({ userdata, friendusername, setusertochat }) => {
                 }
               }}
             >
+              {/* {console.log(friendusername, userFound, userdata)} */}
               {friendusername.filter(val => val.name === userFound.name)
                 .length > 0
                 ? "Chat"
