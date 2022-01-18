@@ -1,17 +1,124 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import profilepic from "../assets/profile.png";
 import elipsisicon from "../assets/elipsis.png";
 import addicon from "../assets/add.png";
 import sendicon from "../assets/send-arrow.png";
+import { db } from "../firebaseConfig";
+import firebase from "firebase/app";
 // import { db } from "../firebaseConfig";
-const Chat = ({ usertochat, usernames }) => {
-  const [data, setdata] = useState();
-  // console.log(data);
-  useEffect(() => {
-    if (usertochat) {
-      setdata(usertochat.messages);
+const Chat = ({ usertochat, usernames, userdata }) => {
+  const [data, setdata] = useState([]);
+  const [chatState, setchatState] = useState(false);
+  const [chatInput, setchatInput] = useState();
+  const [latestChat, setlatestChat] = useState({ timestamp: 0 });
+
+  const addChat = message => {
+    if (usertochat && chatInput) {
+      db.collection("message")
+        .add({
+          message: message,
+          sender: userdata.uid,
+          receiver: usertochat,
+          timestamp: firebase.firestore.Timestamp.fromDate(new Date()),
+        })
+        .catch(err => {
+          console.log(err);
+        });
     }
-  }, [usertochat]);
+  };
+  async function getMessage() {
+    const sender = db
+      .collection("message")
+      .where("sender", "==", userdata.uid)
+      .where("receiver", "==", usertochat)
+      .get();
+    const receiver = db
+      .collection("message")
+      .where("receiver", "==", userdata.uid)
+      .where("sender", "==", usertochat)
+      .get();
+    const [senderSnapshot, receiverSnapshot] = await Promise.all([
+      sender,
+      receiver,
+    ]);
+
+    const senderArr = senderSnapshot.docs;
+    const receiverArr = receiverSnapshot.docs;
+
+    return senderArr.concat(receiverArr);
+  }
+
+  useEffect(() => {
+    if (usertochat && userdata.uid) {
+      return getMessage().then(result => {
+        var tempArr = [];
+        var res = result.sort((a, b) => {
+          return b.data().timestamp - a.data().timestamp;
+        });
+        res.forEach(val => {
+          // console.log(val.data());
+          tempArr.push({
+            message: val.data().message,
+            send: val.data().receiver === userdata.uid ? 0 : 1,
+            timestamp: val.data().timestamp.seconds,
+          });
+        });
+        setdata(tempArr);
+        // console.log(latestChat);
+
+        setlatestChat({
+          timestamp:
+            (res[0].data().timestamp.seconds +
+              res[0].data().timestamp.nanoseconds / 1000000000) *
+            1000,
+        });
+        setchatState(true);
+      });
+    }
+  }, [userdata, usertochat]);
+
+  // console.log(latestChat);
+  useEffect(() => {
+    if (data.length > 0 && chatState) {
+      return db
+        .collection("message")
+        .where("timestamp", ">", new Date(latestChat.timestamp))
+        .onSnapshot(res => {
+          var temp = data;
+          var nanoseconds = 0;
+          // console.log(latestChat);
+          // console.log(data);
+          res.forEach(val => {
+            if (
+              (val.data().sender === userdata.uid &&
+                val.data().receiver === usertochat) ||
+              (val.data().receiver === userdata.uid &&
+                val.data().sender === usertochat)
+            ) {
+              // console.log(val.data());
+              if (val.data().timestamp.seconds > temp[0].timestamp) {
+                temp.unshift({
+                  message: val.data().message,
+                  send: val.data().receiver === userdata.uid ? 0 : 1,
+                  timestamp: val.data().timestamp.seconds,
+                });
+
+                nanoseconds =
+                  nanoseconds > val.data().timestamp.nanoseconds
+                    ? nanoseconds
+                    : val.data().timestamp.nanoseconds;
+              }
+            }
+          });
+          // console.log((temp[0].timestamp + nanoseconds / 1000000000) * 1000);
+          setlatestChat({
+            timestamp: (temp[0].timestamp + nanoseconds / 1000000000) * 1000,
+          });
+          setdata(temp);
+        });
+    }
+  }, [chatState]);
+
   const renderChat = () => {
     if (data) {
       // console.log(data);
@@ -67,8 +174,9 @@ const Chat = ({ usertochat, usernames }) => {
             <img src={profilepic} alt="" />
           </button>
           <p className="text-sm mr-auto">
+            {/* {console.log(usertochat)} */}
             {usertochat && usernames
-              ? usernames.filter(e => e.uid === usertochat.uid)[0].username
+              ? usernames.filter(e => e.uid === usertochat)[0].username
               : ""}
           </p>
           <button>
@@ -86,47 +194,42 @@ const Chat = ({ usertochat, usernames }) => {
       </div>
       <div className="flex flex-col-reverse overflow-y-auto scrollbar-style w-full pt-3 mb-auto">
         {renderChat()}
-        {/* <div className="flex pb-2 items-start mb-4">
-          <img src={profilepic} alt="" className="mr-2" />
-          <div className="flex flex-col w-full">
-            <div className="bg-slate-50 max-w-[calc(100%_-_50px)] rounded-xl rounded-tl-none shadow-[5px_5px_5px_rgba(0,0,0,0.10)] py-1 px-3 text-[0.75rem]">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Adipisci
-              consequuntur, reprehenderit quisquam commodi nobis vitae quo sit
-              facere! Unde perspiciatis at exercitationem provident sunt cumque
-              doloremque, corporis similique culpa eaque.
-            </div>
-            <p className="text-[10px] mt-1 ml-1 text-gray-400">19.07</p>
-          </div>
-        </div>
-        <div className="flex flex-row-reverse pb-2 items-start mb-4 mr-1">
-          <img src={profilepic} alt="" className="ml-2" />
-          <div className="flex flex-col items-end w-full">
-            <p className="bg-[#ABEDD8] max-w-[calc(100%_-_50px)] rounded-xl rounded-tr-none shadow-[-5px_5px_5px_rgba(0,0,0,0.10)] py-1 px-3 text-[0.75rem]">
-              asflaskfja Lorem ipsum dolor sit amet consectetur adipisicing
-              elit. Natus ducimus placeat quod, incidunt quaerat quidem.
-              Doloremque eaque illo maiores cumque ullam cum vel iusto
-              accusamus, voluptate alias! Facilis, reprehenderit quia?
-            </p>
-            <p className="text-[10px] mt-1 mr-1 text-gray-400">19.08</p>
-          </div>
-        </div> */}
       </div>
-      <div className="flex w-full h-11 bg-slate-50 rounded-2xl items-center px-2">
+      <div
+        className={
+          (usertochat ? "visible " : "hidden ") +
+          "flex w-full h-11 bg-slate-50 rounded-2xl items-center px-2 min-h-[2.4rem] mt-1"
+        }
+      >
         <button className="mr-2">
           <img src={addicon} alt="" />
         </button>
-        <input
-          type="text"
-          className="bg-transparent outline-none text-xs placeholder:text-gray-300 placeholder:text-xs mr-auto w-full"
-          placeholder="Type message here..."
-        />
-        <button className="hover:scale-105">
-          <img
-            src={sendicon}
-            alt=""
-            className="transition-all duration-100 hover:scale-105"
+        <form
+          className="w-full flex h-full"
+          onSubmit={e => {
+            e.preventDefault();
+            addChat(chatInput);
+            setchatInput();
+          }}
+        >
+          <input
+            type="text"
+            className="bg-transparent outline-none text-xs placeholder:text-gray-300 placeholder:text-xs mr-auto w-full h-full"
+            placeholder="Type message here..."
+            onChange={e => {
+              e.preventDefault();
+              setchatInput(e.target.value);
+            }}
+            value={chatInput ? chatInput : ""}
           />
-        </button>
+          <button type="submit" className="hover:scale-105">
+            <img
+              src={sendicon}
+              alt=""
+              className="transition-all duration-100 hover:scale-105"
+            />
+          </button>
+        </form>
       </div>
     </>
   );

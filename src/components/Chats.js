@@ -13,7 +13,8 @@ const Chats = ({ chats, usernames, usertochat }) => {
           <div
             onClick={e => {
               e.preventDefault();
-              usertochat(val);
+              // console.log(val);
+              usertochat(val.uid);
             }}
             key={val.uid}
             className="flex items-center border-y-[1px] px-4 py-1 cursor-pointer hover:bg-[#e8e7fc]"
@@ -21,16 +22,15 @@ const Chats = ({ chats, usernames, usertochat }) => {
             <img src={profileicon} alt="" className="h-[36px]" />
             <div className="flex flex-col mr-auto">
               <p className="ml-4 text-sm mb-1">
-                {/* {console.log(chats)} */}
+                {/* {console.log(usernames)}
+                {console.log(chats)} */}
                 {usernames.filter(e => e.uid === val.uid)[0].username}
               </p>
-              <p className="text-xs text-slate-500 ml-4">
-                {val.messages[0].message}
-              </p>
+              <p className="text-xs text-slate-500 ml-4">{val.message}</p>
             </div>
             <div className="flex flex-col items-end">
               <p className="text-[11px] text-gray-400">
-                {new Date(val.messages[0].timestamp * 1000)
+                {new Date(val.timestamp * 1000)
                   .toLocaleTimeString(["ban", "id"])
                   .slice(0, 5)}
               </p>

@@ -3,7 +3,7 @@ import passicon from "../assets/password.png";
 import emailicon from "../assets/email.png";
 import googleicon from "../assets/google.png";
 import { Link } from "react-router-dom";
-import { auth } from "../firebaseConfig";
+import { db, auth } from "../firebaseConfig";
 import firebase from "firebase/app";
 const Login = () => {
   const [email, setemail] = useState();
@@ -12,8 +12,17 @@ const Login = () => {
   const submit = () => {
     auth
       .signInWithEmailAndPassword(email, password)
-      .then(cred => {
-        console.log(cred);
+      .then(res => {
+        if (res.additionalUserInfo.isNewUser()) {
+          db.collection("users").add({
+            name: res.user.displayName,
+            status: "",
+            uid: res.user.uid,
+            username: res.user.displayName,
+            friends: [],
+          });
+        }
+        console.log(res);
       })
       .catch(err => {
         console.log(err.code, err.message);

@@ -31,6 +31,8 @@ function App() {
   const [chats, setchats] = useState([]);
   const [usertochat, setusertochat] = useState();
   const [friendusername, setfriendusername] = useState([]);
+  const [latestChats, setlatestChats] = useState();
+
   const isUserSet = useRef(false);
 
   useEffect(() => {
@@ -76,7 +78,7 @@ function App() {
   useEffect(() => {
     const query = db.collection("users").where("uid", "in", userdata.friends);
 
-    query.onSnapshot(res => {
+    return query.onSnapshot(res => {
       // console.log(res);
       setfriends(res);
       var tempArr = [];
@@ -88,71 +90,254 @@ function App() {
     // }
   }, [userdata]);
 
-  async function gettempChats() {
-    if (userdata) {
-      const sender = db
-        .collection("message")
-        .where("sender", "==", userdata.uid)
-        .get();
-      const receiver = db
-        .collection("message")
-        .where("receiver", "==", userdata.uid)
-        .get();
-      const [senderSnapshot, receiverSnapshot] = await Promise.all([
-        sender,
-        receiver,
-      ]);
-      const senderArr = senderSnapshot.docs;
-      const receiverArr = receiverSnapshot.docs;
-      return senderArr.concat(receiverArr);
-    }
+  async function getChats() {
+    const sender = db
+      .collection("message")
+      .where("sender", "==", userdata.uid)
+      .get();
+    const receiver = db
+      .collection("message")
+      .where("receiver", "==", userdata.uid)
+      .get();
+    const [senderSnapshot, receiverSnapshot] = await Promise.all([
+      sender,
+      receiver,
+    ]);
+
+    const senderArr = senderSnapshot.docs;
+    const receiverArr = receiverSnapshot.docs;
+
+    return senderArr.concat(receiverArr);
   }
 
   useEffect(() => {
-    if (userdata) {
-      gettempChats().then(res => {
-        // console.log(res);
+    if (userdata.uid) {
+      return getChats().then(result => {
         var tempArr = chats;
+        var res = result.sort((a, b) => {
+          return b.data().timestamp - a.data().timestamp;
+        });
         res.forEach(val => {
+          // console.log(val.data());
           if (
-            !tempArr.some(
-              obj =>
-                obj.uid === val.data().sender || obj.uid === val.data().receiver
-            )
+            val.data().sender === userdata.uid ||
+            val.data().receiver === userdata.uid
           ) {
-            tempArr.push({
-              uid:
-                val.data().receiver === userdata.uid
-                  ? val.data().sender
-                  : val.data().receiver,
-              messages: [
-                {
+            if (
+              !tempArr.some(
+                obj =>
+                  obj.uid === val.data().sender ||
+                  obj.uid === val.data().receiver
+              )
+            ) {
+              tempArr.push({
+                uid:
+                  val.data().receiver === userdata.uid
+                    ? val.data().sender
+                    : val.data().receiver,
+                message: val.data().message,
+                send: val.data().receiver === userdata.uid ? 0 : 1,
+                timestamp: val.data().timestamp.seconds,
+              });
+              setchats(tempArr);
+              setlatestChats(
+                latestChats > tempArr[tempArr.length - 1].timestamp
+                  ? latestChats
+                  : tempArr[tempArr.length - 1].timestamp
+              );
+            } else {
+              // console.log(tempArr);
+              const idxUser = tempArr.findIndex(
+                obj =>
+                  obj.uid === val.data().sender ||
+                  obj.uid === val.data().receiver
+              );
+              if (val.data().timestamp.seconds > tempArr[idxUser].timestamp) {
+                console.log(val.data());
+                tempArr[idxUser] = {
+                  uid:
+                    val.data().receiver === userdata.uid
+                      ? val.data().sender
+                      : val.data().receiver,
                   message: val.data().message,
                   send: val.data().receiver === userdata.uid ? 0 : 1,
                   timestamp: val.data().timestamp.seconds,
-                },
-              ],
-            });
-          } else {
-            // console.log(tempArr);
-            const idxUser = tempArr.findIndex(
-              obj =>
-                obj.uid === val.data().receiver || obj.uid === val.data().sender
-            );
-            tempArr[idxUser].messages.push({
-              message: val.data().message,
-              send: val.data().receiver === userdata.uid ? 0 : 1,
-              timestamp: val.data().timestamp.seconds,
-            });
-            tempArr[idxUser].messages.sort((a, b) => {
-              return b.timestamp - a.timestamp;
-            });
+                };
+                setchats(tempArr);
+                setlatestChats(
+                  latestChats > tempArr[idxUser].timestamp
+                    ? latestChats
+                    : tempArr[idxUser].timestamp
+                );
+              }
+            }
           }
         });
-        setchats(tempArr);
       });
     }
   }, [userdata]);
+
+  //get chat as sender
+
+  useEffect(() => {
+    if (latestChats) {
+      return db
+        .collection("message")
+        .where("timestamp", ">", new Date(latestChats))
+        .onSnapshot(res => {
+          res.forEach(val => {
+            if (
+              val.data().sender === userdata.uid ||
+              val.data().receiver === userdata.uid
+            ) {
+              var tempArr = chats;
+              if (
+                !tempArr.some(
+                  obj =>
+                    obj.uid === val.data().sender ||
+                    obj.uid === val.data().receiver
+                )
+              ) {
+                tempArr.push({
+                  uid:
+                    val.data().receiver === userdata.uid
+                      ? val.data().sender
+                      : val.data().receiver,
+                  message: val.data().message,
+                  send: val.data().receiver === userdata.uid ? 0 : 1,
+                  timestamp: val.data().timestamp.seconds,
+                });
+                setchats(tempArr);
+                setlatestChats(
+                  latestChats > tempArr[tempArr.length - 1].timestamp
+                    ? latestChats
+                    : tempArr[tempArr.length - 1].timestamp
+                );
+              } else {
+                // console.log(tempArr);
+                const idxUser = tempArr.findIndex(
+                  obj =>
+                    obj.uid === val.data().sender ||
+                    obj.uid === val.data().receiver
+                );
+                if (val.data().timestamp.seconds > tempArr[idxUser].timestamp) {
+                  // console.log(val.data());
+                  tempArr[idxUser] = {
+                    uid:
+                      val.data().receiver === userdata.uid
+                        ? val.data().sender
+                        : val.data().receiver,
+                    message: val.data().message,
+                    send: val.data().receiver === userdata.uid ? 0 : 1,
+                    timestamp: val.data().timestamp.seconds,
+                  };
+                  setchats(tempArr);
+                  setlatestChats(
+                    latestChats > tempArr[idxUser].timestamp
+                      ? latestChats
+                      : tempArr[idxUser].timestamp
+                  );
+                }
+              }
+            }
+          });
+        });
+    }
+  }, [latestChats]);
+
+  // useEffect(() => {
+  //   return db
+  //     .collection("message")
+  //     .orderBy("timestamp", "desc")
+  //     .onSnapshot(res => {
+  //       // console.log(res);
+
+  //       var tempArr = chats;
+  //       res.forEach(val => {
+  //         // console.log(val.data());
+  //         if (
+  //           val.data().sender === userdata.uid ||
+  //           val.data().receiver === userdata.uid
+  //         ) {
+  //           if (
+  //             !tempArr.some(
+  //               obj =>
+  //                 obj.uid === val.data().sender ||
+  //                 obj.uid === val.data().receiver
+  //             )
+  //           ) {
+  //             tempArr.push({
+  //               uid:
+  //                 val.data().receiver === userdata.uid
+  //                   ? val.data().sender
+  //                   : val.data().receiver,
+  //               message: val.data().message,
+  //               send: val.data().receiver === userdata.uid ? 0 : 1,
+  //               timestamp: val.data().timestamp.seconds,
+  //             });
+  //             setchats(tempArr);
+  //           } else {
+  //             // console.log(tempArr);
+  //             const idxUser = tempArr.findIndex(
+  //               obj =>
+  //                 obj.uid === val.data().sender ||
+  //                 obj.uid === val.data().receiver
+  //             );
+  //             if (val.data().timestamp.seconds > tempArr[idxUser].timestamp) {
+  //               console.log(val.data());
+  //               tempArr[idxUser] = {
+  //                 uid:
+  //                   val.data().receiver === userdata.uid
+  //                     ? val.data().sender
+  //                     : val.data().receiver,
+  //                 message: val.data().message,
+  //                 send: val.data().receiver === userdata.uid ? 0 : 1,
+  //                 timestamp: val.data().timestamp.seconds,
+  //               };
+  //               setchats(tempArr);
+  //             }
+  //           }
+  //         }
+  //       });
+  //     });
+  // }, [userdata]);
+
+  //get chats receiver
+  // useEffect(() => {
+  //   return db
+  //     .collection("message")
+  //     .where("receiver", "==", userdata.uid)
+  //     .orderBy("timestamp", "desc")
+  //     .limit(1)
+  //     .onSnapshot(res => {
+  //       // console.log(res);
+  //       var tempArr = chats;
+  //       res.forEach(val => {
+  //         if (!tempArr.some(obj => obj.uid === val.data().receiver)) {
+  //           tempArr.push({
+  //             uid: val.data().sender,
+  //             message: val.data().message,
+  //             send: 0,
+  //             timestamp: val.data().timestamp.seconds,
+  //           });
+  //           setchats(tempArr);
+  //         } else {
+  //           // console.log(tempArr);
+  //           const idxUser = tempArr.findIndex(
+  //             obj => obj.uid === val.data().receiver
+  //           );
+  //           if (val.data().timestamp > tempArr[idxUser].timestamp) {
+  //             tempArr[idxUser] = {
+  //               message: val.data().message,
+  //               send: 0,
+  //               timestamp: val.data().timestamp.seconds,
+  //             };
+  //             setchats(tempArr);
+  //           }
+  //         }
+  //       });
+  //     });
+  // }, [userdata]);
 
   //get user uid
   useEffect(() => {
@@ -282,7 +467,11 @@ function App() {
               </Routes>
             </div>
             <div className="flex flex-col h-full w-full p-3 pb-0 min-w-[307px]">
-              <Chat usertochat={usertochat} usernames={friendusername} />
+              <Chat
+                usertochat={usertochat}
+                usernames={friendusername}
+                userdata={userdata}
+              />
             </div>
           </div>
           <div className="flex flex-col w-[23rem] ml-4 bg-slate-50 rounded-2xl p-3 items-center min-w-[180px]">
