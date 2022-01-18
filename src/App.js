@@ -245,101 +245,6 @@ function App() {
     }
   }, [latestChats]);
 
-  // useEffect(() => {
-  //   return db
-  //     .collection("message")
-  //     .orderBy("timestamp", "desc")
-  //     .onSnapshot(res => {
-  //       // console.log(res);
-
-  //       var tempArr = chats;
-  //       res.forEach(val => {
-  //         // console.log(val.data());
-  //         if (
-  //           val.data().sender === userdata.uid ||
-  //           val.data().receiver === userdata.uid
-  //         ) {
-  //           if (
-  //             !tempArr.some(
-  //               obj =>
-  //                 obj.uid === val.data().sender ||
-  //                 obj.uid === val.data().receiver
-  //             )
-  //           ) {
-  //             tempArr.push({
-  //               uid:
-  //                 val.data().receiver === userdata.uid
-  //                   ? val.data().sender
-  //                   : val.data().receiver,
-  //               message: val.data().message,
-  //               send: val.data().receiver === userdata.uid ? 0 : 1,
-  //               timestamp: val.data().timestamp.seconds,
-  //             });
-  //             setchats(tempArr);
-  //           } else {
-  //             // console.log(tempArr);
-  //             const idxUser = tempArr.findIndex(
-  //               obj =>
-  //                 obj.uid === val.data().sender ||
-  //                 obj.uid === val.data().receiver
-  //             );
-  //             if (val.data().timestamp.seconds > tempArr[idxUser].timestamp) {
-  //               console.log(val.data());
-  //               tempArr[idxUser] = {
-  //                 uid:
-  //                   val.data().receiver === userdata.uid
-  //                     ? val.data().sender
-  //                     : val.data().receiver,
-  //                 message: val.data().message,
-  //                 send: val.data().receiver === userdata.uid ? 0 : 1,
-  //                 timestamp: val.data().timestamp.seconds,
-  //               };
-  //               setchats(tempArr);
-  //             }
-  //           }
-  //         }
-  //       });
-  //     });
-  // }, [userdata]);
-
-  //get chats receiver
-  // useEffect(() => {
-  //   return db
-  //     .collection("message")
-  //     .where("receiver", "==", userdata.uid)
-  //     .orderBy("timestamp", "desc")
-  //     .limit(1)
-  //     .onSnapshot(res => {
-  //       // console.log(res);
-  //       var tempArr = chats;
-  //       res.forEach(val => {
-  //         if (!tempArr.some(obj => obj.uid === val.data().receiver)) {
-  //           tempArr.push({
-  //             uid: val.data().sender,
-  //             message: val.data().message,
-  //             send: 0,
-  //             timestamp: val.data().timestamp.seconds,
-  //           });
-  //           setchats(tempArr);
-  //         } else {
-  //           // console.log(tempArr);
-  //           const idxUser = tempArr.findIndex(
-  //             obj => obj.uid === val.data().receiver
-  //           );
-  //           if (val.data().timestamp > tempArr[idxUser].timestamp) {
-  //             tempArr[idxUser] = {
-  //               message: val.data().message,
-  //               send: 0,
-  //               timestamp: val.data().timestamp.seconds,
-  //             };
-  //             setchats(tempArr);
-  //           }
-  //         }
-  //       });
-  //     });
-  // }, [userdata]);
-
-  //get user uid
   useEffect(() => {
     if (user) {
       db.collection("users")
@@ -463,7 +368,16 @@ function App() {
                   }
                 />
                 <Route path={"/logout"} element={<Logout func={setuser} />} />
-                <Route path={"/adduser"} element={<Adduser />} />
+                <Route
+                  path={"/adduser"}
+                  element={
+                    <Adduser
+                      friendusername={friendusername}
+                      userdata={userdata}
+                      setusertochat={setusertochat}
+                    />
+                  }
+                />
               </Routes>
             </div>
             <div className="flex flex-col h-full w-full p-3 pb-0 min-w-[307px]">

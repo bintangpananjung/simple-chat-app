@@ -12,8 +12,12 @@ const Chat = ({ usertochat, usernames, userdata }) => {
   const [chatInput, setchatInput] = useState();
   const [latestChat, setlatestChat] = useState({ timestamp: 0 });
 
+  useEffect(() => {
+    setchatState(false);
+  }, [usertochat]);
   const addChat = message => {
-    if (usertochat && chatInput) {
+    if (usertochat && message) {
+      // console.log(message);
       db.collection("message")
         .add({
           message: message,
@@ -64,14 +68,22 @@ const Chat = ({ usertochat, usernames, userdata }) => {
           });
         });
         setdata(tempArr);
-        // console.log(latestChat);
+        if (tempArr.length > 0) {
+          setlatestChat({
+            timestamp:
+              (res[0].data().timestamp.seconds +
+                res[0].data().timestamp.nanoseconds / 1000000000) *
+              1000,
+          });
+        } else {
+          setlatestChat({
+            timestamp:
+              (firebase.firestore.Timestamp.now().seconds +
+                firebase.firestore.Timestamp.now().nanoseconds / 1000000000) *
+              1000,
+          });
+        }
 
-        setlatestChat({
-          timestamp:
-            (res[0].data().timestamp.seconds +
-              res[0].data().timestamp.nanoseconds / 1000000000) *
-            1000,
-        });
         setchatState(true);
       });
     }
@@ -79,12 +91,14 @@ const Chat = ({ usertochat, usernames, userdata }) => {
 
   // console.log(latestChat);
   useEffect(() => {
-    if (data.length > 0 && chatState) {
+    // console.log(chatState);
+    if (data && chatState) {
       return db
         .collection("message")
         .where("timestamp", ">", new Date(latestChat.timestamp))
         .onSnapshot(res => {
           var temp = data;
+          // console.log(temp);
           var nanoseconds = 0;
           // console.log(latestChat);
           // console.log(data);
@@ -96,24 +110,53 @@ const Chat = ({ usertochat, usernames, userdata }) => {
                 val.data().sender === usertochat)
             ) {
               // console.log(val.data());
-              if (val.data().timestamp.seconds > temp[0].timestamp) {
-                temp.unshift({
-                  message: val.data().message,
-                  send: val.data().receiver === userdata.uid ? 0 : 1,
-                  timestamp: val.data().timestamp.seconds,
-                });
+              if (temp.length > 0) {
+                if (val.data().timestamp.seconds > temp[0].timestamp) {
+                  temp.unshift({
+                    message: val.data().message,
+                    send: val.data().receiver === userdata.uid ? 0 : 1,
+                    timestamp: val.data().timestamp.seconds,
+                  });
 
-                nanoseconds =
-                  nanoseconds > val.data().timestamp.nanoseconds
-                    ? nanoseconds
-                    : val.data().timestamp.nanoseconds;
+                  nanoseconds =
+                    nanoseconds > val.data().timestamp.nanoseconds
+                      ? nanoseconds
+                      : val.data().timestamp.nanoseconds;
+                }
+              } else {
+                // console.log(val.data().timestamp.seconds, latestChat.timestamp);
+                if (
+                  val.data().timestamp.seconds >
+                  latestChat.timestamp / 1000
+                ) {
+                  temp.unshift({
+                    message: val.data().message,
+                    send: val.data().receiver === userdata.uid ? 0 : 1,
+                    timestamp: val.data().timestamp.seconds,
+                  });
+
+                  nanoseconds =
+                    nanoseconds > val.data().timestamp.nanoseconds
+                      ? nanoseconds
+                      : val.data().timestamp.nanoseconds;
+                }
               }
             }
           });
           // console.log((temp[0].timestamp + nanoseconds / 1000000000) * 1000);
-          setlatestChat({
-            timestamp: (temp[0].timestamp + nanoseconds / 1000000000) * 1000,
-          });
+          if (temp.length > 0) {
+            setlatestChat({
+              timestamp: (temp[0].timestamp + nanoseconds / 1000000000) * 1000,
+            });
+          } else {
+            setlatestChat({
+              timestamp:
+                (firebase.firestore.Timestamp.now().seconds +
+                  firebase.firestore.Timestamp.now().nanoseconds / 1000000000) *
+                1000,
+            });
+          }
+
           setdata(temp);
         });
     }
