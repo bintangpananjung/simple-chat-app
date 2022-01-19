@@ -7,6 +7,7 @@ import addchaticon from "../assets/addchat.png";
 
 const Chats = ({ chats, usernames, usertochat }) => {
   const renderChats = () => {
+    // console.log(chats);
     if (chats.length > 0 && usernames.length > 0) {
       return chats.map((val, index) => {
         return (

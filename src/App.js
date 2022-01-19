@@ -14,6 +14,7 @@ import { useState, useEffect, useRef } from "react";
 import { db, auth } from "./firebaseConfig";
 import Adduser from "./components/Adduser";
 import Logout from "./components/Logout";
+import firebase from "firebase/app";
 
 function App() {
   const location = useLocation();
@@ -36,6 +37,7 @@ function App() {
 
   const isUserSet = useRef(false);
 
+  // console.log(chats);
   useEffect(() => {
     auth.onAuthStateChanged(signed => {
       if (signed) {
@@ -140,7 +142,7 @@ function App() {
                 send: val.data().receiver === userdata.uid ? 0 : 1,
                 timestamp: val.data().timestamp.seconds,
               });
-              setchats(tempArr);
+
               setlatestChats(
                 latestChats > tempArr[tempArr.length - 1].timestamp
                   ? latestChats
@@ -164,7 +166,7 @@ function App() {
                   send: val.data().receiver === userdata.uid ? 0 : 1,
                   timestamp: val.data().timestamp.seconds,
                 };
-                setchats(tempArr);
+
                 setlatestChats(
                   latestChats > tempArr[idxUser].timestamp
                     ? latestChats
@@ -174,24 +176,34 @@ function App() {
             }
           }
         });
+        if (tempArr.length === 0) {
+          // console.log(latestChats);
+          setlatestChats(
+            (firebase.firestore.Timestamp.now().seconds +
+              firebase.firestore.Timestamp.now().nanoseconds / 1000000000) *
+              1000
+          );
+        }
+
+        setchats(tempArr);
       });
     }
   }, [userdata]);
 
   //get chat as sender
-
+  // console.log(chats);
   useEffect(() => {
     if (latestChats) {
       return db
         .collection("message")
         .where("timestamp", ">", new Date(latestChats))
         .onSnapshot(res => {
+          var tempArr = chats;
           res.forEach(val => {
             if (
               val.data().sender === userdata.uid ||
               val.data().receiver === userdata.uid
             ) {
-              var tempArr = chats;
               if (
                 !tempArr.some(
                   obj =>
@@ -208,7 +220,7 @@ function App() {
                   send: val.data().receiver === userdata.uid ? 0 : 1,
                   timestamp: val.data().timestamp.seconds,
                 });
-                setchats(tempArr);
+                setchats([...tempArr]);
                 setlatestChats(
                   latestChats > tempArr[tempArr.length - 1].timestamp
                     ? latestChats
@@ -232,7 +244,10 @@ function App() {
                     send: val.data().receiver === userdata.uid ? 0 : 1,
                     timestamp: val.data().timestamp.seconds,
                   };
-                  setchats(tempArr);
+                  tempArr.sort((a, b) => {
+                    return b.timestamp - a.timestamp;
+                  });
+                  setchats([...tempArr]);
                   setlatestChats(
                     latestChats > tempArr[idxUser].timestamp
                       ? latestChats
@@ -242,6 +257,8 @@ function App() {
               }
             }
           });
+          // console.log(latestChats);
+          // console.log(chats);
         });
     }
   }, [latestChats]);

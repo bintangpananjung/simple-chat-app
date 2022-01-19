@@ -14,7 +14,13 @@ const Users = ({ friends, userdata, setusertoprofile }) => {
       userslist.push(
         <div key={userdata.uid}>
           <p className="text-xs text-slate-500 ml-4 my-2">You</p>
-          <div className="flex items-center border-y-[1px] px-4 py-1 cursor-default hover:bg-[#e8e7fc]">
+          <div
+            className="flex items-center border-y-[1px] px-4 py-1 cursor-pointer hover:bg-[#e8e7fc]"
+            onClick={e => {
+              e.preventDefault();
+              setusertoprofile(userdata);
+            }}
+          >
             <img src={profileicon} alt="" className="h-[36px]" />
             <p className="ml-4 text-sm mr-auto">{userdata.username}</p>
             <p className="text-xs text-slate-500 ml-4 my-2 mr-3">
