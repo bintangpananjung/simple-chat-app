@@ -33,6 +33,10 @@ const Users = ({ friends, userdata, setusertoprofile }) => {
           <div
             key={val.id}
             className="flex items-center border-y-[1px] px-4 py-1 cursor-pointer hover:bg-[#e8e7fc]"
+            onClick={e => {
+              e.preventDefault();
+              setusertoprofile(val.data());
+            }}
           >
             <img src={profileicon} alt="" className="h-[36px]" />
             <p className="ml-4 text-sm mr-auto">{val.data().username}</p>

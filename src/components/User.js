@@ -56,13 +56,14 @@ const User = ({ usertoprofile, userdata }) => {
                   </form>
                 ) : (
                   <p
-                    className="text-lg font-semibold py-[0.1rem] h-fit"
+                    className="text-lg text-center font-semibold py-[0.1rem] h-fit"
                     title="name"
                   >
                     {usertoprofile.username}
                   </p>
                 )}
                 <button
+                  title="edit username"
                   onClick={e => {
                     e.preventDefault();
                     if (editUsername) {
@@ -112,10 +113,14 @@ const User = ({ usertoprofile, userdata }) => {
                   </form>
                 ) : (
                   <p
-                    className="text-xs text-gray-400 mb-auto h-fit py-[0.1rem]"
+                    className="text-xs text-center text-gray-400 mb-auto h-fit py-[0.1rem]"
                     title="status"
                   >
-                    {usertoprofile.status}
+                    {usertoprofile.status.length > 0 ? (
+                      usertoprofile.status
+                    ) : (
+                      <span className="italic">type your status here...</span>
+                    )}
                   </p>
                 )}
                 <button
@@ -127,6 +132,7 @@ const User = ({ usertoprofile, userdata }) => {
                       seteditStatus(true);
                     }
                   }}
+                  title="edit status"
                 >
                   <img
                     src={editprofileicon}
@@ -139,12 +145,15 @@ const User = ({ usertoprofile, userdata }) => {
           ) : (
             <>
               <p
-                className="text-lg font-semibold mr-1 py-[0.1rem]"
+                className="text-lg text-center font-semibold mr-1 py-[0.1rem]"
                 title="name"
               >
                 {usertoprofile.username}
               </p>
-              <p className="text-xs text-gray-400 py-[0.1rem]" title="status">
+              <p
+                className="text-xs text-center text-gray-400 py-[0.1rem]"
+                title="status"
+              >
                 {usertoprofile.status}
               </p>
             </>
