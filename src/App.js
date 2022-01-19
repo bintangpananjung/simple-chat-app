@@ -32,6 +32,7 @@ function App() {
   const [usertochat, setusertochat] = useState();
   const [friendusername, setfriendusername] = useState([]);
   const [latestChats, setlatestChats] = useState();
+  const [usertoprofile, setusertoprofile] = useState();
 
   const isUserSet = useRef(false);
 
@@ -255,6 +256,7 @@ function App() {
             temp = val.data();
           });
           setuserdata(temp);
+          setusertoprofile(temp);
           isUserSet.current = true;
         });
     }
@@ -355,7 +357,13 @@ function App() {
               <Routes>
                 <Route
                   path={"/users"}
-                  element={<Users friends={friends} userdata={userdata} />}
+                  element={
+                    <Users
+                      friends={friends}
+                      userdata={userdata}
+                      setusertoprofile={setusertoprofile}
+                    />
+                  }
                 />
                 <Route
                   path={"/chats"}
@@ -389,7 +397,7 @@ function App() {
             </div>
           </div>
           <div className="flex flex-col w-[23rem] ml-4 bg-slate-50 rounded-2xl p-3 items-center min-w-[180px]">
-            <User />
+            <User usertoprofile={usertoprofile} userdata={userdata} />
           </div>
         </div>
       </div>

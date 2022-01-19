@@ -3,7 +3,7 @@ import React from "react";
 import searchicon from "../assets/search.png";
 import profileicon from "../assets/profile.png";
 import elipsisicon from "../assets/elipsis.png";
-const Users = ({ friends, userdata }) => {
+const Users = ({ friends, userdata, setusertoprofile }) => {
   // const [data, setdata] = useState();
   // console.log(data);
   //get user data
