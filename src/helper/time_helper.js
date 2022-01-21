@@ -72,3 +72,17 @@ export function getDateofListMessage(prevtime, timemap, now) {
   }
   return messageDate;
 }
+
+export function getDateofListChats(timemap, now) {
+  if (timemap.getFullYear() === now.getFullYear()) {
+    if (timemap.getMonth() === now.getMonth()) {
+      if (timemap.getDate() + 1 === now.getDate()) {
+        return "yesterday";
+      }
+      if (timemap.getDate() === now.getDate()) {
+        return "today";
+      }
+    }
+  }
+  return timemap.toUTCString(["ban", "id"]).slice(5, 17);
+}

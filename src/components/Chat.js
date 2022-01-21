@@ -242,6 +242,7 @@ const Chat = ({ usertochat, usernames, userdata }) => {
   };
   const renderName = () => {
     if (usertochat && usernames) {
+      // console.log(usertochat, usernames);
       return (
         <>
           <button className="mr-3">

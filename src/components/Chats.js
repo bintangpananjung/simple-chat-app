@@ -3,13 +3,16 @@ import searchicon from "../assets/search.png";
 import profileicon from "../assets/profile.png";
 import elipsisicon from "../assets/elipsis.png";
 import addchaticon from "../assets/addchat.png";
+import { getDateofListChats } from "../helper/time_helper";
 // import { db } from "../firebaseConfig";
 
 const Chats = ({ chats, usernames, usertochat }) => {
   const renderChats = () => {
     // console.log(chats);
+    var now = new Date();
     if (chats.length > 0 && usernames.length > 0) {
       return chats.map((val, index) => {
+        var timemap = new Date(val.timestamp * 1000);
         return (
           <div
             onClick={e => {
@@ -29,15 +32,13 @@ const Chats = ({ chats, usernames, usertochat }) => {
             </div>
             <div className="flex flex-col items-end">
               <p className="text-[11px] text-gray-400">
-                {new Date(val.timestamp * 1000)
+                {getDateofListChats(timemap, now)}
+                {/* {new Date(val.timestamp * 1000)
                   .toUTCString(["ban", "id"])
-                  .slice(5, 17)}
+                  .slice(5, 17)} */}
               </p>
               <p className="text-[11px] text-gray-400">
-                at{" "}
-                {new Date(val.timestamp * 1000)
-                  .toLocaleTimeString(["ban", "id"])
-                  .slice(0, 5)}
+                at {timemap.toLocaleTimeString(["ban", "id"]).slice(0, 5)}
               </p>
             </div>
           </div>

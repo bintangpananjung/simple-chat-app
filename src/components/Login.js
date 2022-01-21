@@ -13,7 +13,7 @@ const Login = () => {
     auth
       .signInWithEmailAndPassword(email, password)
       .then(res => {
-        if (res.additionalUserInfo.isNewUser()) {
+        if (res.additionalUserInfo.isNewUser) {
           db.collection("users").add({
             name: res.user.displayName,
             status: "",
