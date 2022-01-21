@@ -41,7 +41,7 @@ const Adduser = ({ userdata, friendusername, setusertochat }) => {
     if (userFound) {
       return (
         <>
-          <div className="flex flex-col items-center mt-2 p-5 w-full mx-1 border-y-[1px] ">
+          <div className="flex flex-col items-center mt-2 p-5 w-full border-y-[1px] ">
             <img src={profilepic} alt="" className="min-w-[90px]" />
             <p className="text-sm mt-2 mb-1 text-center">
               {userFound.username}
@@ -79,7 +79,7 @@ const Adduser = ({ userdata, friendusername, setusertochat }) => {
       );
     } else {
       return (
-        <div className="flex flex-col items-center mt-2 p-5 w-full mx-1 border-y-[1px] ">
+        <div className="flex flex-col items-center mt-2 p-5 w-full border-y-[1px] ">
           <p className="text-xs">user not found</p>
         </div>
       );
