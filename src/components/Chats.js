@@ -30,12 +30,15 @@ const Chats = ({ chats, usernames, usertochat }) => {
             <div className="flex flex-col items-end">
               <p className="text-[11px] text-gray-400">
                 {new Date(val.timestamp * 1000)
+                  .toUTCString(["ban", "id"])
+                  .slice(5, 17)}
+              </p>
+              <p className="text-[11px] text-gray-400">
+                at{" "}
+                {new Date(val.timestamp * 1000)
                   .toLocaleTimeString(["ban", "id"])
                   .slice(0, 5)}
               </p>
-              <button>
-                <img src={elipsisicon} alt="" />
-              </button>
             </div>
           </div>
         );

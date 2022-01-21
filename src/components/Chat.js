@@ -5,6 +5,7 @@ import addicon from "../assets/add.png";
 import sendicon from "../assets/send-arrow.png";
 import { db } from "../firebaseConfig";
 import firebase from "firebase/app";
+import { getDateofListMessage } from "../helper/time_helper";
 // import { db } from "../firebaseConfig";
 const Chat = ({ usertochat, usernames, userdata }) => {
   const [data, setdata] = useState([]);
@@ -165,41 +166,71 @@ const Chat = ({ usertochat, usernames, userdata }) => {
   const renderChat = () => {
     if (data) {
       // console.log(data);
-      return data.map(val => {
+      var now = new Date();
+      var prevtime = 0;
+      return data.map((val, idx) => {
         var temp;
+        var messageDate;
+        var timemap = new Date(val.timestamp * 1000);
+        if (prevtime !== 0) {
+          messageDate = getDateofListMessage(prevtime, timemap, now);
+        }
+        prevtime = timemap;
+
         if (val.send === 1) {
           temp = (
-            <div
-              className="flex flex-row-reverse pb-2 items-start mb-1 mr-1"
-              key={val.timestamp}
-            >
-              <img src={profilepic} alt="" className="ml-2" />
-              <div className="flex flex-col items-end w-full">
-                <p className="bg-[#ABEDD8] w-fit max-w-[calc(100%_-_50px)] rounded-xl rounded-tr-none shadow-[-5px_5px_5px_rgba(0,0,0,0.10)] py-1 px-3 text-[0.75rem]">
-                  {val.message}
-                </p>
-                <p className="text-[10px] mt-1 mr-1 text-gray-400">
-                  {new Date(val.timestamp * 1000)
-                    .toLocaleTimeString(["ban", "id"])
-                    .slice(0, 5)}
-                </p>
+            <div key={val.timestamp}>
+              {data.length === idx + 1
+                ? getDateofListMessage(
+                    prevtime,
+                    new Date((val.timestamp - 86400) * 1000),
+                    now
+                  )
+                : ""}
+              <div className="flex flex-row-reverse pb-2 items-start mb-1 mr-1">
+                <img src={profilepic} alt="" className="ml-2" />
+                <div className="flex flex-col items-end w-full">
+                  <p className="bg-[#ABEDD8] w-fit max-w-[calc(100%_-_50px)] rounded-xl rounded-tr-none shadow-[-5px_5px_5px_rgba(0,0,0,0.10)] py-1 px-3 text-[0.75rem]">
+                    {val.message}
+                  </p>
+
+                  <p className="text-[10px] mt-1 mr-1 text-gray-400">
+                    {new Date(val.timestamp * 1000)
+                      .toLocaleTimeString(["ban", "id"])
+                      .slice(0, 5)}
+                  </p>
+                </div>
               </div>
+              {messageDate}
             </div>
           );
         } else {
           temp = (
-            <div className="flex pb-2 items-start mb-1" key={val.timestamp}>
-              <img src={profilepic} alt="" className="mr-2" />
-              <div className="flex flex-col items-start w-full">
-                <div className="bg-slate-50 max-w-[calc(100%_-_50px)] rounded-xl rounded-tl-none shadow-[5px_5px_5px_rgba(0,0,0,0.10)] py-1 px-3 text-[0.75rem]">
-                  {val.message}
+            <div key={val.timestamp}>
+              {/* {data.length === idx + 1
+                ? console.log(new Date((val.timestamp - 86400) * 1000), timemap)
+                : ""} */}
+              {data.length === idx + 1
+                ? getDateofListMessage(
+                    prevtime,
+                    new Date((val.timestamp - 86400) * 1000),
+                    now
+                  )
+                : ""}
+              <div className="flex pb-2 items-start mb-1">
+                <img src={profilepic} alt="" className="mr-2" />
+                <div className="flex flex-col items-start w-full">
+                  <div className="bg-slate-50 max-w-[calc(100%_-_50px)] rounded-xl rounded-tl-none shadow-[5px_5px_5px_rgba(0,0,0,0.10)] py-1 px-3 text-[0.75rem]">
+                    {val.message}
+                  </div>
+                  <p className="text-[10px] mt-1 ml-1 text-gray-400">
+                    {new Date(val.timestamp * 1000)
+                      .toLocaleTimeString(["ban", "id"])
+                      .slice(0, 5)}
+                  </p>
                 </div>
-                <p className="text-[10px] mt-1 ml-1 text-gray-400">
-                  {new Date(val.timestamp * 1000)
-                    .toLocaleTimeString(["ban", "id"])
-                    .slice(0, 5)}
-                </p>
               </div>
+              {messageDate}
             </div>
           );
         }
