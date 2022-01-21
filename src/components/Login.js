@@ -35,7 +35,7 @@ const Login = () => {
   return (
     <>
       <form
-        className="p-0 w-full h-fit flex flex-col items-center mt-auto"
+        className="p-0 w-full h-fit flex flex-col items-center mt-10"
         onSubmit={e => {
           e.preventDefault();
           submit();

@@ -113,7 +113,7 @@ const User = ({ usertoprofile, userdata }) => {
                   </form>
                 ) : (
                   <p
-                    className="text-xs text-center text-gray-400 mb-auto h-fit py-[0.1rem]"
+                    className="text-xs text-center text-gray-400 mb-auto h-fit py-[0.1rem] break-words max-w-full"
                     title="status"
                   >
                     {usertoprofile.status.length > 0 ? (

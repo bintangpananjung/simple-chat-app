@@ -23,8 +23,6 @@ const Chats = ({ chats, usernames, usertochat }) => {
             <img src={profileicon} alt="" className="h-[36px]" />
             <div className="flex flex-col mr-auto">
               <p className="ml-4 text-sm mb-1">
-                {/* {console.log(usernames)}
-                {console.log(chats)} */}
                 {usernames.filter(e => e.uid === val.uid)[0].username}
               </p>
               <p className="text-xs text-slate-500 ml-4">{val.message}</p>

@@ -20,13 +20,7 @@ function App() {
   const location = useLocation();
   const [mounted, setmounted] = useState(false);
   const [user, setuser] = useState();
-  const [userdata, setuserdata] = useState({
-    uid: null,
-    status: null,
-    name: null,
-    username: null,
-    friends: ["false"],
-  });
+  const [userdata, setuserdata] = useState();
   const [token, settoken] = useState();
   const [friends, setfriends] = useState();
   const [chats, setchats] = useState([]);
@@ -79,6 +73,7 @@ function App() {
       });
   }, []);
   useEffect(() => {
+    if (!userdata) return;
     const query = db.collection("users").where("uid", "in", userdata.friends);
 
     return query.onSnapshot(res => {
@@ -114,7 +109,7 @@ function App() {
   }
 
   useEffect(() => {
-    if (userdata.uid) {
+    if (userdata) {
       return getChats().then(result => {
         var tempArr = chats;
         var res = result.sort((a, b) => {
@@ -379,6 +374,7 @@ function App() {
                       friends={friends}
                       userdata={userdata}
                       setusertoprofile={setusertoprofile}
+                      setusertochat={setusertochat}
                     />
                   }
                 />

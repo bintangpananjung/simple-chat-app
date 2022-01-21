@@ -18,8 +18,8 @@ const Authentication = () => {
   //     });
   return (
     <>
-      <div className="flex justify-center items-center h-screen min-h-fit bg-[#cee3ee]">
-        <div className="flex flex-col w-1/4 h-[80%] min-w-[30rem] min-h-[31rem] bg-[#48466D] rounded-3xl overflow-hidden py-4 px-4">
+      <div className="flex justify-center items-center min-h-fit h-screen min-w-fit bg-[#cee3ee]">
+        <div className="flex flex-col w-1/4 h-[40rem] min-w-[30rem] min-h-[31rem] max-h-fit bg-[#48466D] rounded-3xl overflow-hidden py-4 px-4">
           <div className="flex flex-col w-full h-[10rem] items-center justify-center mb-4">
             <div className="">
               <img src={loginicon} alt="" className="h-37" />
