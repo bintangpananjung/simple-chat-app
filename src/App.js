@@ -110,49 +110,26 @@ function App() {
 
   useEffect(() => {
     if (userdata) {
-      return getChats().then(result => {
-        var tempArr = chats;
-        var res = result.sort((a, b) => {
-          return b.data().timestamp - a.data().timestamp;
-        });
-        res.forEach(val => {
-          // console.log(val.data());
-          if (
-            val.data().sender === userdata.uid ||
-            val.data().receiver === userdata.uid
-          ) {
+      return getChats()
+        .then(result => {
+          var tempArr = chats;
+          var res = result.sort((a, b) => {
+            return b.data().timestamp - a.data().timestamp;
+          });
+          res.forEach(val => {
+            // console.log(val.data());
             if (
-              !tempArr.some(
-                obj =>
-                  obj.uid === val.data().sender ||
-                  obj.uid === val.data().receiver
-              )
+              val.data().sender === userdata.uid ||
+              val.data().receiver === userdata.uid
             ) {
-              tempArr.push({
-                uid:
-                  val.data().receiver === userdata.uid
-                    ? val.data().sender
-                    : val.data().receiver,
-                message: val.data().message,
-                send: val.data().receiver === userdata.uid ? 0 : 1,
-                timestamp: val.data().timestamp.seconds,
-              });
-
-              setlatestChats(
-                latestChats > tempArr[tempArr.length - 1].timestamp
-                  ? latestChats
-                  : tempArr[tempArr.length - 1].timestamp
-              );
-            } else {
-              // console.log(tempArr);
-              const idxUser = tempArr.findIndex(
-                obj =>
-                  obj.uid === val.data().sender ||
-                  obj.uid === val.data().receiver
-              );
-              if (val.data().timestamp.seconds > tempArr[idxUser].timestamp) {
-                console.log(val.data());
-                tempArr[idxUser] = {
+              if (
+                !tempArr.some(
+                  obj =>
+                    obj.uid === val.data().sender ||
+                    obj.uid === val.data().receiver
+                )
+              ) {
+                tempArr.push({
                   uid:
                     val.data().receiver === userdata.uid
                       ? val.data().sender
@@ -160,28 +137,55 @@ function App() {
                   message: val.data().message,
                   send: val.data().receiver === userdata.uid ? 0 : 1,
                   timestamp: val.data().timestamp.seconds,
-                };
+                });
 
                 setlatestChats(
-                  latestChats > tempArr[idxUser].timestamp
+                  latestChats > tempArr[tempArr.length - 1].timestamp
                     ? latestChats
-                    : tempArr[idxUser].timestamp
+                    : tempArr[tempArr.length - 1].timestamp
                 );
+              } else {
+                // console.log(tempArr);
+                const idxUser = tempArr.findIndex(
+                  obj =>
+                    obj.uid === val.data().sender ||
+                    obj.uid === val.data().receiver
+                );
+                if (val.data().timestamp.seconds > tempArr[idxUser].timestamp) {
+                  console.log(val.data());
+                  tempArr[idxUser] = {
+                    uid:
+                      val.data().receiver === userdata.uid
+                        ? val.data().sender
+                        : val.data().receiver,
+                    message: val.data().message,
+                    send: val.data().receiver === userdata.uid ? 0 : 1,
+                    timestamp: val.data().timestamp.seconds,
+                  };
+
+                  setlatestChats(
+                    latestChats > tempArr[idxUser].timestamp
+                      ? latestChats
+                      : tempArr[idxUser].timestamp
+                  );
+                }
               }
             }
+          });
+          if (tempArr.length === 0) {
+            // console.log(latestChats);
+            setlatestChats(
+              (firebase.firestore.Timestamp.now().seconds +
+                firebase.firestore.Timestamp.now().nanoseconds / 1000000000) *
+                1000
+            );
           }
-        });
-        if (tempArr.length === 0) {
-          // console.log(latestChats);
-          setlatestChats(
-            (firebase.firestore.Timestamp.now().seconds +
-              firebase.firestore.Timestamp.now().nanoseconds / 1000000000) *
-              1000
-          );
-        }
 
-        setchats(tempArr);
-      });
+          setchats(tempArr);
+        })
+        .catch(err => {
+          console.log(err);
+        });
     }
   }, [userdata]);
 
@@ -279,23 +283,6 @@ function App() {
     }
   }, []);
 
-  // console.log(userdata);
-  // console.log("a");
-
-  // useEffect(() => {
-  //   const userdata = auth.currentUser;
-
-  //   if (userdata !== null) {
-  //     userdata.providerData.forEach(profile => {
-  //       console.log("Sign-in provider: " + profile.providerId);
-  //       console.log("  Provider-specific UID: " + profile.uid);
-  //       console.log("  Name: " + profile.displayName);
-  //       console.log("  Email: " + profile.email);
-  //       console.log("  Photo URL: " + profile.photoURL);
-  //       console.log(profile);
-  //     });
-  //   }
-  // }, [user]);
   if (!location.pathname.match(/^\/auth+\/(login|register)$/i) && !user) {
     return <Navigate to={"/auth/login"} />;
   }

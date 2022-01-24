@@ -3,7 +3,7 @@ import usernameicon from "../assets/username.png";
 import passicon from "../assets/password.png";
 import emailicon from "../assets/email.png";
 import { Link } from "react-router-dom";
-import { auth } from "../firebaseConfig";
+import { auth, db } from "../firebaseConfig";
 const Register = props => {
   const [username, setusername] = useState();
   const [email, setemail] = useState();
@@ -14,8 +14,15 @@ const Register = props => {
     if (password === confpass) {
       auth
         .createUserWithEmailAndPassword(email, password)
-        .then(cred => {
-          console.log(cred);
+        .then(res => {
+          db.collection("users").add({
+            name: res.user.displayName,
+            status: "",
+            uid: res.user.uid,
+            username: res.user.displayName,
+            friends: ["false"],
+          });
+          console.log(res);
         })
         .catch(error => {
           console.log(error.code, error.message);

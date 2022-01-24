@@ -13,15 +13,15 @@ const Login = () => {
     auth
       .signInWithEmailAndPassword(email, password)
       .then(res => {
-        if (res.additionalUserInfo.isNewUser) {
-          db.collection("users").add({
-            name: res.user.displayName,
-            status: "",
-            uid: res.user.uid,
-            username: res.user.displayName,
-            friends: [],
-          });
-        }
+        // if (res.additionalUserInfo.isNewUser) {
+        //   db.collection("users").add({
+        //     name: res.user.displayName,
+        //     status: "",
+        //     uid: res.user.uid,
+        //     username: res.user.displayName,
+        //     friends: [],
+        //   });
+        // }
         console.log(res);
       })
       .catch(err => {

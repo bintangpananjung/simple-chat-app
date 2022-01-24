@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import profilepic from "../assets/profile-90px.png";
 import expandicon from "../assets/expand-arrow.png";
 import editprofileicon from "../assets/edit-profile.png";
+import chaticon from "../assets/chat-user.png";
 import { db } from "../firebaseConfig";
 const User = ({ usertoprofile, userdata }) => {
   const [editUsername, seteditUsername] = useState(false);
@@ -158,6 +159,12 @@ const User = ({ usertoprofile, userdata }) => {
               </p>
             </>
           )}
+          {/* <div className="flex rounded-xl items-center justify-between w-full px-2 bg-[#e8e7fc] drop-shadow h-fit">
+            <button className="border-r-2 border-black py-2 pr-[50%]">
+              <img src={chaticon} alt="" />
+            </button>
+            <button className="pl-[50%]">bla</button>
+          </div> */}
 
           <div className="flex rounded-2xl items-center w-full mt-auto mb-2 bg-[#e8e7fc] p-2">
             <div className="rounded-full h-8 w-8 bg-blue-500 mr-3"></div>
