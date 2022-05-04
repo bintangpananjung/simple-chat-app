@@ -3,7 +3,7 @@ import passicon from "../assets/password.png";
 import emailicon from "../assets/email.png";
 import googleicon from "../assets/google.png";
 import { Link } from "react-router-dom";
-import { db, auth } from "../firebaseConfig";
+import { auth } from "../firebaseConfig";
 import firebase from "firebase/app";
 const Login = () => {
   const [email, setemail] = useState();

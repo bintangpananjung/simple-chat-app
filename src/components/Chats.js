@@ -1,14 +1,11 @@
 import React from "react";
 import searchicon from "../assets/search.png";
 import profileicon from "../assets/profile.png";
-import elipsisicon from "../assets/elipsis.png";
 import addchaticon from "../assets/addchat.png";
 import { getDateofListChats } from "../helper/time_helper";
-// import { db } from "../firebaseConfig";
 
 const Chats = ({ chats, usernames, usertochat }) => {
   const renderChats = () => {
-    // console.log(chats);
     var now = new Date();
     if (chats.length > 0 && usernames.length > 0) {
       return chats.map((val, index) => {
@@ -26,6 +23,7 @@ const Chats = ({ chats, usernames, usertochat }) => {
             <img src={profileicon} alt="" className="h-[36px]" />
             <div className="flex flex-col mr-auto">
               <p className="ml-4 text-sm mb-1">
+                {/* {console.log(usernames, val.uid)} */}
                 {usernames.filter(e => e.uid === val.uid)[0].username}
               </p>
               <p className="text-xs text-slate-500 ml-4">{val.message}</p>

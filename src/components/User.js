@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import profilepic from "../assets/profile-90px.png";
 import expandicon from "../assets/expand-arrow.png";
 import editprofileicon from "../assets/edit-profile.png";
-import chaticon from "../assets/chat-user.png";
 import { db } from "../firebaseConfig";
 const User = ({ usertoprofile, userdata }) => {
   const [editUsername, seteditUsername] = useState(false);

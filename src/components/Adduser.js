@@ -53,13 +53,22 @@ const Adduser = ({ userdata, friendusername, setusertochat }) => {
                   setusertochat(userFound.uid);
                 } else {
                   db.collection("users")
-                    .where("uid", "==", userdata.uid)
+                    .where("uid", "in", [userdata.uid, userFound.uid])
                     .get()
                     .then(async res => {
-                      var temp = res.docs[0].data().friends;
-                      temp.push(userFound.uid);
-                      await res.docs[0].ref.update({
-                        friends: temp,
+                      var temp;
+                      res.forEach(async docs => {
+                        temp = docs.data().friends;
+                        if (docs.data().uid === userFound.uid) {
+                          temp.push(userdata.uid);
+                        }
+                        if (docs.data().uid === userdata.uid) {
+                          temp.push(userFound.uid);
+                        }
+
+                        await docs.ref.update({
+                          friends: temp,
+                        });
                       });
                     })
                     .catch(err => {

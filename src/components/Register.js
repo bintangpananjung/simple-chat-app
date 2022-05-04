@@ -28,6 +28,7 @@ const Register = props => {
           console.log(error.code, error.message);
         });
     }
+    console.log(username);
   };
 
   return (

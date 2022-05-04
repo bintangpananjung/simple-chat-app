@@ -84,9 +84,10 @@ function App() {
         tempArr.push(val.data());
       });
       setfriendusername(tempArr);
+      console.log(token);
     });
     // }
-  }, [userdata]);
+  }, [userdata, token]);
 
   async function getChats() {
     const sender = db
@@ -187,7 +188,7 @@ function App() {
           console.log(err);
         });
     }
-  }, [userdata]);
+  }, [userdata]); // eslint-disable-line react-hooks/exhaustive-deps
 
   //get chat as sender
   // console.log(chats);
@@ -260,7 +261,7 @@ function App() {
           // console.log(chats);
         });
     }
-  }, [latestChats]);
+  }, [latestChats]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (user) {
@@ -304,7 +305,7 @@ function App() {
   return (
     <>
       <div className="flex justify-center items-center h-screen min-h-fit bg-[#cee3ee] min-w-fit">
-        <div className="flex w-10/12 h-5/6 min-w-[57rem] min-h-[31rem] bg-[#48466D] rounded-3xl overflow-hidden py-4 pr-4">
+        <div className="flex w-10/12 h-[40rem] min-w-[57rem] min-h-[31rem] bg-[#48466D] rounded-3xl overflow-hidden py-4 pr-4">
           <div className="h-full flex flex-col justify-center items-center w-24 min-w-[4rem]">
             <Link
               to={"/users"}
