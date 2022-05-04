@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import profilepic from "../assets/profile.png";
 import elipsisicon from "../assets/elipsis.png";
 import addicon from "../assets/add.png";
@@ -88,7 +88,7 @@ const Chat = ({ usertochat, usernames, userdata }) => {
         setchatState(true);
       });
     }
-  }, [userdata, usertochat]);
+  }, [userdata, usertochat]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // console.log(latestChat);
   useEffect(() => {
@@ -161,7 +161,7 @@ const Chat = ({ usertochat, usernames, userdata }) => {
           setdata(temp);
         });
     }
-  }, [chatState]);
+  }, [chatState]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const renderChat = () => {
     if (data) {
